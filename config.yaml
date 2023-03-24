@@ -1,0 +1,9 @@
+db_name: './listener_db.sqlite'
+likert: [
+    'stm_struct',
+    'ltm_struct',
+    'overall_preference',
+    'complexity',
+    'coherence',
+    'repetitiveness'
+]
