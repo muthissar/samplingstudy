@@ -1,9 +1,23 @@
 db_name: './listener_db.sqlite'
-likert: [
-    'stm_struct',
-    'ltm_struct',
-    'overall_preference',
-    'complexity',
-    'coherence',
-    'repetitiveness'
+sample_dir: './samples'
+likert:
+    stm_struct:
+        name: 'Short-Term Structure'
+        explenation: 'Whether the piece shows good structures in neighboring content, such as good repetitions and reasonable development.'
+    ltm_struct:
+        name: 'Long-Term Structure'
+        explenation: 'Whether the piece shows good structures in long distances, such as song-level repetitions and long-distance connections'
+    repetitiveness:
+        name: 'Repetitiveness'
+        explenation: 'Whether the piece is (too) repetitive.'
+    # overall_preference:
+    #     name: 'Overall '
+    # complexity:
+    # coherence: 
+    #     -name: 
+#NOTE: should it be read from sample_dir instead?
+sampling_methods: [
+    'greedy',
+    'typical',
+    'ic_curve',
 ]
