@@ -17,6 +17,12 @@ function parse_cookie(Request $request){
     $cookie = $request->getCookieParams();
     return json_decode($cookie['exp']);
 }
+function render(Response $response, string $page, array $args=[]) : Response{
+    $renderer = new PhpRenderer('templates');
+    $renderer->setLayout('layout.phtml');
+    $response = $renderer->render($response, $page, $args);
+    return $response;
+}
 
 return function (App $app) {
     $app->options('/{routes:.*}', function (Request $request, Response $response) {
@@ -25,11 +31,11 @@ return function (App $app) {
     });
 
     $app->get('/', function (Request $request, Response $response) {
-        $renderer = new PhpRenderer('templates');
+
         $userStudy = new UserStudy();
         $exp = $userStudy->getStudy();
         $methods = array_keys($exp['samples']);
-        $response = $renderer->render($response, "UserStudy.phtml", $methods);
+        $response = render($response, "UserStudy.phtml", $methods);
         $cookie = new Cookies();
         $cookie->set('exp', json_encode($exp));
         $header = $cookie->toHeaders();
@@ -38,15 +44,12 @@ return function (App $app) {
     });
 
     $app->post('/submit', function (Request $request, Response $response) {
-        #$cookie = Cookies::parseHeader($request->getHeaderLine('Cookie'));
         $exp = parse_cookie($request);
         $user = $exp->user;
         $samples = $exp->samples;
-        // $cookie = $request->getHeaderLine('Cookie');
         $userInputs = $request->getParsedBody();
         $request->getAttributes();
         $request->getBody();
-        // $request->get;
         // TODO: assumes that all methods are specified
         $conn = DB::getConnection();
         $queryBuilder = $conn->createQueryBuilder();
@@ -65,8 +68,8 @@ return function (App $app) {
         foreach($parsedInput as $input){
             #TODO: make transaction in order to revert if one is failing...
             $result = $queryBuilder->insert('likert')->values($input)->executeQuery();
-            1+1;
         }
+        $response = $response->withHeader('Location', 'success')->withStatus(302);
         return $response;
     });
 
@@ -82,8 +85,19 @@ return function (App $app) {
         #TODO: set headers and choose codec and dissallow that it's loading loading loading.
         return $response
                 ->withBody($stream)
-                ->withHeader('Content-Type', 'audio/mp3');
+                ->withAddedHeader('Content-length', filesize($path))
+                ->withHeader('Content-Type', 'audio/mpeg')
+                ;
+        // $response->withAddedHeader('Content-Type', 'audio/mpeg')
+        //     ->withAddedHeader('Content-length', filesize($path))
+        //     ->withBody(file_get_contents($path));
+        // header('Content-Type: audio/mpeg');
+        // header('Content-length: ' . filesize('/path/to/your/file.mp3'));
+        // print file_get_contents('/path/to/your/file.mp3');
     });
     // })->setOutputBuffering(false);
-
+    $app->get('/success', function (Request $request, Response $response) {
+        $response = render($response, "Success.phtml");
+        return $response;
+    });
 };
