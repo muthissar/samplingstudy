@@ -43,22 +43,18 @@ return function (App $app) {
         $user = $exp->user;
         $samples = $exp->samples;
         // $cookie = $request->getHeaderLine('Cookie');
-        $userInputs = $request->getQueryParams();
+        $userInputs = $request->getParsedBody();
+        $request->getAttributes();
+        $request->getBody();
         // $request->get;
         // TODO: assumes that all methods are specified
         $conn = DB::getConnection();
         $queryBuilder = $conn->createQueryBuilder();
-        // $methods = $queryBuilder->select('id')->from('sampling_method')->fetchAllAssociative();
-        // $methods = array_keys($samples);
-        // $parsedInput = [];
-        // foreach($methods as $key=>$method){
-        //     $parsedInput[$method['id']] = [];
-        // }
+
         $parsedInput = [];
         foreach($samples as $method=>$sample){
             $parsedInput[$method] = ['user'=>$user, 'sample'=>$sample];
         }
-        // for($i=0; $i<)
         foreach($userInputs as $userInput=>$value){
             $exploded = explode('-', $userInput);
             $method = $exploded[0];
@@ -66,15 +62,12 @@ return function (App $app) {
             $parsedInput[$method][$likert] = $value;
             
         }
-        // $insertQuery = $queryBuilder->insert('likert')->values();
-
+        foreach($parsedInput as $input){
+            #TODO: make transaction in order to revert if one is failing...
+            $result = $queryBuilder->insert('likert')->values($input)->executeQuery();
+            1+1;
+        }
         return $response;
-        // $conn = (new DB())->conn;
-        // $request->post
-        // $queryBuilder = $conn->createQueryBuilder();
-        // $queryBuilder->
-        // $response->getBody()->write('Hello world!');
-        // return $response;
     });
 
     $app->get('/audio', function (Request $request, Response $response) {
@@ -86,15 +79,11 @@ return function (App $app) {
         $path = $conn->createQueryBuilder()->select('path')->from('samples')->where('id = ?')->setParameter(0, $id)->fetchFirstColumn()[0];
         $fh = fopen($path, 'rb');
         $stream = new Stream($fh);
+        #TODO: set headers and choose codec and dissallow that it's loading loading loading.
         return $response
                 ->withBody($stream)
                 ->withHeader('Content-Type', 'audio/mp3');
     });
     // })->setOutputBuffering(false);
 
-
-    // $app->group('/users', function (Group $group) {
-    //     $group->get('', ListUsersAction::class);
-    //     $group->get('/{id}', ViewUserAction::class);
-    // });
 };
