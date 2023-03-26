@@ -24,7 +24,7 @@ class DB{
             // // TODO: change path
             // 'driver' => 'pdo_sqlite',
             // 'path' => Config::getConfig()['db_name'],
-            'path' => self::$config['db_name'],
+            'path' => __DIR__."/../../".self::$config['db_name'],
             'driver' => 'sqlite3',
         ];
         return DriverManager::getConnection($connectionParams);
@@ -56,6 +56,8 @@ class DB{
         $idColumn = $sampleMethodTable->addColumn("id", "integer", ["unsigned" => true]);
         $sampleMethodTable->setPrimaryKey(["id"]);
         $sampleMethodTable->addColumn("name", "string", ["length" => 32, /*"notnull" => false*/]);
+        
+        
         return $schema;
     }
     public static function getPlatform(){
@@ -65,7 +67,7 @@ class DB{
         $schema = self::getSchema();
         $myPlatform = self::getPlatform();
         $queries = $schema->toDropSql($myPlatform); // get queries to safely delete this schema.
-        $conn = $conn = (new DB())->conn;;
+        $conn = (new DB())->conn;;
 
         foreach ($queries as &$query) {
             $conn->executeQuery($query);
@@ -95,7 +97,7 @@ class DB{
         # NOTE: fill samples
         $sampleDir = self::$config['sample_dir'];
         foreach($methods as $method => $methodId){
-            foreach (new DirectoryIterator($sampleDir."/$method") as $file) {
+            foreach (new DirectoryIterator(__DIR__."/../../$sampleDir/$method") as $file) {
                 if($file->isDot()) continue;
                 $p = $file->getPathname();
                 $conn->insert('samples', ['method'=>$methodId, 'path'=>$p]);

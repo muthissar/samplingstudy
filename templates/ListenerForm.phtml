@@ -2,9 +2,13 @@
     <?php
         use App\Mut\Config;
         $config = Config::getConfig();
-        foreach($config['likert'] as $key=>$measured){
-            echo $this->fetch('./Likert.phtml', ["measured" => [$key=>$measured]]);
+        foreach($data as $method){
+            echo "<audio controls src='./audio?method=$method'></audio>";
+            foreach($config['likert'] as $key=>$measured){
+                echo $this->fetch('./Likert.phtml', ['method'=> $method, "measured" => [$key=>$measured]]);
+            }
         }
+        
     ?>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>

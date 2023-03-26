@@ -1,5 +1,5 @@
 <?php
-require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 use \App\Mut\DB;
 use App\Mut\Config;
 $ret = Config::getConfig();
