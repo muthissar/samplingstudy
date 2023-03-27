@@ -6,7 +6,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Connection;
 use \Doctrine\DBAL\Schema\Schema;
 use \App\Mut\Config;
-
+use Doctrine\DBAL\Types;
 class DB{
     static $config;
     protected Connection $conn;
@@ -19,11 +19,6 @@ class DB{
 
     public static function getConnection() : Connection{
         $connectionParams = [
-            // 'user' => 'admin',
-            // 'password' => 'secret',
-            // // TODO: change path
-            // 'driver' => 'pdo_sqlite',
-            // 'path' => Config::getConfig()['db_name'],
             'path' => __DIR__."/../../".self::$config['db_name'],
             'driver' => 'sqlite3',
         ];
@@ -42,8 +37,14 @@ class DB{
         foreach (array_keys(self::$config['likert']) as &$method) {
             $likertTable->addColumn($method, "integer", ["unsigned" => true, /*"notnull" => false*/]);
         }
+        $likertTable->addColumn("time", 'datetime');
         // $likertTable->addUniqueIndex(["user"]);
-        $likertTable->setComment('Keeps the answers of users.');
+        // $likertTable->setComment('Keeps the answers of users.');
+        $userTable = $schema->createTable("user");
+        $userTable->addColumn("id", "integer", ["unsigned" => true]);
+        // $userTable->addColumn("create_time", Types::DATETIME_IMMUTABLE);
+        $userTable->addColumn("create_time", 'datetime');
+
 
         $sampleTable = $schema->createTable("samples");
         $idColumn = $sampleTable->addColumn("id", "integer", ["unsigned" => true]);

@@ -31,6 +31,11 @@ return function (App $app) {
     });
 
     $app->get('/', function (Request $request, Response $response) {
+        $response = render($response, "landing.phtml");
+        return $response;
+    });
+
+    $app->get('/userstudy', function (Request $request, Response $response) {
 
         $userStudy = new UserStudy();
         $exp = $userStudy->getStudy();
@@ -56,7 +61,7 @@ return function (App $app) {
 
         $parsedInput = [];
         foreach($samples as $method=>$sample){
-            $parsedInput[$method] = ['user'=>$user, 'sample'=>$sample];
+            $parsedInput[$method] = ['user'=>$user, 'sample'=>$sample, 'time'=>'CURRENT_TIME'];
         }
         foreach($userInputs as $userInput=>$value){
             $exploded = explode('-', $userInput);
