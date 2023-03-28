@@ -12,6 +12,7 @@ use Slim\Views\PhpRenderer;
 use Slim\Psr7\Stream;
 use Slim\Psr7\Cookies;
 use App\Mut\UserStudy;
+use Doctrine\DBAL\Connection;
 
 function parse_cookie(Request $request){
     $cookie = $request->getCookieParams();
@@ -31,14 +32,30 @@ return function (App $app) {
     });
 
     $app->get('/', function (Request $request, Response $response) {
-        $response = render($response, "landing.phtml");
-        return $response;
+        $cookie = $request->getCookieParams();
+        // NOTE: alternatively check if userid is set in database.
+        if(array_key_exists('success', $cookie)){
+            return $response = $response->withHeader('Location', 'success')->withStatus(302);
+        }
+        else{
+            $response = render($response, "landing.phtml");
+            return $response;
+        }
     });
 
-    $app->get('/userstudy', function (Request $request, Response $response) {
+    $app->get('/userstudy', function (Request $request, Response $response, $args) {
 
         $userStudy = new UserStudy();
-        $exp = $userStudy->getStudy();
+        // NOTE: get expertise
+        $parsedQuery = $request->getQueryParams();
+        // $parsedBody = $request->getParsedBody();
+        if (array_key_exists('expertise_id',  $parsedQuery)){
+            $expertiseId = $parsedQuery['expertise_id'];
+        }
+        else{
+            $expertiseId = null;
+        }
+        $exp = $userStudy->getStudy($expertiseId);
         $methods = array_keys($exp['samples']);
         $response = render($response, "UserStudy.phtml", $methods);
         $cookie = new Cookies();
@@ -57,11 +74,14 @@ return function (App $app) {
         $request->getBody();
         // TODO: assumes that all methods are specified
         $conn = DB::getConnection();
-        $queryBuilder = $conn->createQueryBuilder();
 
         $parsedInput = [];
         foreach($samples as $method=>$sample){
-            $parsedInput[$method] = ['user'=>$user, 'sample'=>$sample, 'time'=>'CURRENT_TIME'];
+            $parsedInput[$method] = [
+                'user'=>$user,
+                'sample'=>$sample,
+                'time'=>'CURRENT_TIME'
+            ];
         }
         foreach($userInputs as $userInput=>$value){
             $exploded = explode('-', $userInput);
@@ -70,11 +90,22 @@ return function (App $app) {
             $parsedInput[$method][$likert] = $value;
             
         }
-        foreach($parsedInput as $input){
-            #TODO: make transaction in order to revert if one is failing...
-            $result = $queryBuilder->insert('likert')->values($input)->executeQuery();
+        $success = $conn->transactional(function(Connection $conn) use ($parsedInput): string  {
+            $queryBuilder = $conn->createQueryBuilder();
+            foreach($parsedInput as $input){
+                #TODO: make transaction in order to revert if one is failing...
+                $result = $queryBuilder->insert('likert')->values($input)->executeQuery();
+                // $result->fetchFirstColumn();
+            }
+            return 'success';
+        });
+        if($success == 'success'){
+            $cookie = new Cookies();
+            $cookie->set('success', "true");
+            $header = $cookie->toHeaders();
+            $response = $response->withAddedHeader('Set-Cookie', $header);
+            $response = $response->withHeader('Location', 'success')->withStatus(302);
         }
-        $response = $response->withHeader('Location', 'success')->withStatus(302);
         return $response;
     });
 

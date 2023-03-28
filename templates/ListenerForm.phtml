@@ -2,8 +2,11 @@
     <?php
         use App\Mut\Config;
         $config = Config::getConfig();
-        foreach($data as $method){
-            echo "<audio controls src='./audio?method=$method'></audio>";
+        $shuffled = array_merge_recursive([], $data);
+        shuffle($shuffled);
+        // foreach($data as $method){
+        foreach($shuffled as $method){
+            echo "<div class='row'><audio controls src='./audio?method=$method'></audio><div>";
             foreach($config['likert'] as $key=>$measured){
                 echo $this->fetch('./Likert.phtml', ['method'=> $method, "measured" => [$key=>$measured]]);
             }

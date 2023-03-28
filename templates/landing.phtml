@@ -1,7 +1,3 @@
-<?php
-    use App\Mut\Config;
-    $config = Config::getConfig();
-?>
 <div class="modal" tabindex="-1" id='myModal'>
   <div class="modal-dialog">
     <div class="modal-content">
@@ -10,10 +6,9 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p><?php 
-        $config = Config::getConfig();
-        echo $config['description'];
-        ?></p>
+        <p>
+          Some modal
+        </p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id='myInput'>Close</button-->
@@ -22,29 +17,93 @@
     </div>
   </div>
 </div>
-<!--script>
-const myModal = document.getElementById('myModal')
-const myInput = document.getElementById('myInput')
+  <!--div class="container"-->
+    <div class='row'>
+      <h2>Participant Information Sheet</h2>
+        <p>
+          <!--b>Full Title:</b> Listening Study – An Assessment on the Quality and Specificity of Computer-generated Singing with Artificially Converted Singing Techniques<br><br!>
+          <b>Researcher's Name:</b> Brendan O'Connor (supervised by Prof Simon Dixon)</b><br>
+          <b>Queen Mary Ethics of Research Committee reference number:</b> QMERC22.088</b><br>
+          <b>Version number and date:</b> Version 0.1: 15.02.2022<br><br-->
 
-myModal.addEventListener('shown.bs.modal', () => {
-  myInput.focus()
-})
-myModal.modal();
-</script-->
-<p>
-<?php 
-    $config = Config::getConfig();
-    echo $config['description'];
-?>
-</p>
+          We would like to invite you to be part of this research project. 
+          Please read the following information carefully before you decide to take part. 
+          This will tell you why the research is being done and what you will be asked to do if you take part. 
+          Please ask if there is anything that is not clear or if you would like more information. <br><br>
+
+          <b>What is the purpose of the study and what would taking part involve?</b><br><br>
+
+          The purpose of this study is to evaluate different sampling techniques, 
+          where we aim to identify if any of these creates more structured music and overall preference. 
+          We are requesting the participants to listen to 4 different recordings and rate from 1-5:
+          <ul class='list-group'>
+              <li class='list-group-item'>Short-term structure.</li>
+              <li class='list-group-item'>Long-term structure</li>
+              <!--li class='list-group-item'>Morbi leo risus</li>
+              <li class='list-group-item'>Porta ac consectetur ac</li>
+              <li class='list-group-item'>Vestibulum at eros</li-->
+          </ul> Please ensure you are using a desktop/laptop before continuing (the study is not optimized for tablets or phones).
+          <!--Detailed instructions on how to proceed will be provided throughout the experiment, which takes approximately 10-15 minutes to complete. Please click <b>Next</b> to continue.<br><br>-->
+      </p>
+  </div>
 <!--button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal">
   Launch demo modal
 </button-->
-<form method="get" action="userstudy">
-    <!--input id="nav" type="submit" value="Add"-->
-    <!--button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal"--->
-    <button type="submit" class="btn btn-primary">
-        Launch Listening Survey.
-    </button>
-</form>
+<div class="row">
+  <form method="get" action="userstudy">
+      <!--input id="nav" type="submit" value="Add"-->
+      <!--button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal"--->
+      <div>
+        <label for="expertise_id" class="form-label">State</label>
+        <select name="expertise_id" id="expertise_id" class="form-select"required>
+          <option selected disabled value="">Level of musical expertice</option>
+          <?php 
+            use App\Mut\DB;
+            $conn = DB::getConnection();
+            $expertises = $conn->executeQuery("SELECT * FROM expertise")->fetchAllAssociative();
+            foreach($expertises as $expertise){
+              echo '<option value="'.$expertise["id"].'">'.$expertise["level"].'</option>"';
+            }
+          ?>
+        </select>
+        <div class="invalid-feedback">Please select expertise.</div>
+      </div>
+      <button type="hidden" id="button" class="btn btn-primary">
+          Next
+      </button>
+  </form>
+</div>
+<!-- Cookie Consent by FreePrivacyPolicy.com https://www.FreePrivacyPolicy.com -->
+<script type="text/javascript" src="//www.freeprivacypolicy.com/public/cookie-consent/4.1.0/cookie-consent.js" charset="UTF-8"></script>
+<script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({"notice_banner_type":"headline","consent_type":"express","palette":"light","language":"en","page_load_consent_levels":["strictly-necessary"],"notice_banner_reject_button_hide":false,"preferences_center_close_button_hide":false,"page_refresh_confirmation_buttons":false});
+});
+</script>
 
+<noscript>Cookie Consent by <a href="https://www.freeprivacypolicy.com/">Free Privacy Policy Generator</a></noscript>
+<!-- End Cookie Consent by FreePrivacyPolicy.com https://www.FreePrivacyPolicy.com -->
+
+
+
+
+
+<!-- Below is the link that users can use to open Preferences Center to change their preferences. Do not modify the ID parameter. Place it where appropriate, style it as needed. -->
+
+<a href="#" id="open_preferences_center">Update cookies preferences</a>
+
+
+<!--script>
+//   $('#button').click(function(){
+//   $('.btn-update').prop('disabled', false);
+//   e.preventDefault();
+// });
+const selector = document.querySelector('#expertise_id')
+
+selector.addEventListener('click', function(){
+// selector.addEventListener('change', function(){
+  document.querySelector('#button').prop('disabled', false);
+  e.preventDefault();
+})
+
+</script-->

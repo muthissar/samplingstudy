@@ -1,24 +1,23 @@
 db_name: './listener_db.sqlite'
 sample_dir: './samples'
+# sample_dir: /mnt/hel.cp.jku.at/devel/python3/DSTM/out/synthesized
 likert:
     stm_struct:
         name: 'Short-Term Structure'
-        explenation: 'Whether the piece shows good structures in neighboring content, such as good repetitions and reasonable development.'
+        desc: 'Whether the piece shows good structures in neighboring content, such as good repetitions and reasonable development'
     ltm_struct:
         name: 'Long-Term Structure'
-        explenation: 'Whether the piece shows good structures in long distances, such as song-level repetitions and long-distance connections'
+        desc: 'Whether the piece shows good structures in long distances, such as song-level repetitions and long-distance connections'
     repetitiveness:
         name: 'Repetitiveness'
-        explenation: 'Whether the piece is (too) repetitive.'
+        desc: 'Whether the piece is (too) repetitive'
     # overall_preference:
     #     name: 'Overall '
     # complexity:
     # coherence: 
     #     -name: 
-#NOTE: should it be read from sample_dir instead?
-sampling_methods: [
-    'greedy',
-    'typical',
-    'ic_curve',
+expertise: [
+    "No",
+    "Some",
+    "Much"
 ]
-description: "Placeholder for description of Listener study."

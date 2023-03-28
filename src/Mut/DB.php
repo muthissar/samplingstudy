@@ -42,9 +42,14 @@ class DB{
         // $likertTable->setComment('Keeps the answers of users.');
         $userTable = $schema->createTable("user");
         $userTable->addColumn("id", "integer", ["unsigned" => true]);
-        // $userTable->addColumn("create_time", Types::DATETIME_IMMUTABLE);
+        $userTable->addColumn("expertise", "integer", ["unsigned" => true, "notnull" => false]);
         $userTable->addColumn("create_time", 'datetime');
 
+        $userExpertiseTable = $schema->createTable("expertise");
+        $idColumn = $userExpertiseTable->addColumn("id", "integer", ["unsigned" => true]);
+        $idColumn->setAutoincrement(true);
+        $userExpertiseTable->addColumn("level", "string", ["length" => 32]);
+        $userExpertiseTable->setPrimaryKey(["id"]);
 
         $sampleTable = $schema->createTable("samples");
         $idColumn = $sampleTable->addColumn("id", "integer", ["unsigned" => true]);
@@ -88,15 +93,24 @@ class DB{
         #NOTE: fill sampling_method table
         $methods = [];
         $methodCounter = 0;
-        foreach (self::$config['sampling_methods'] as $method) {
-            $conn->insert('sampling_method', ['id'=>$methodCounter, 'name' =>$method]);
-            $methods[$method] = $methodCounter;
+        $sampleDir = self::$config['sample_dir'];
+        // foreach (self::$config['sampling_methods'] as $method) {
+        foreach (new DirectoryIterator(__DIR__."/../../$sampleDir") as $file) {
+            if($file->isDot()) continue;
+            if($file->isDir()){
+                $method = $file->getBasename();
+                $conn->insert('sampling_method', ['id'=>$methodCounter, 'name' =>$method]);
+                $methods[$method] = $methodCounter;
+            }
             $methodCounter++;
         }
-
+        
+        #NOTE: fill expertise table
+        foreach(self::$config['expertise'] as $expertise){
+            $conn->insert('expertise', ['level' =>$expertise]);
+        }
 
         # NOTE: fill samples
-        $sampleDir = self::$config['sample_dir'];
         foreach($methods as $method => $methodId){
             foreach (new DirectoryIterator(__DIR__."/../../$sampleDir/$method") as $file) {
                 if($file->isDot()) continue;

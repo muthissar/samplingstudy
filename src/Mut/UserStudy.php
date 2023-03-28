@@ -4,7 +4,7 @@ use App\Mut\DB;
 use Doctrine\DBAL\Connection;
 // use Doctrine\DBAL\Types;
 class UserStudy{
-    public function getStudy(){
+    public function getStudy($expertiseId){
         // NOTE: use strategy where each user get's assigned different samples
         $conn  = DB::getConnection();
         // $conn->createQueryBuilder()->select('user', 'COUNT(*)')->from('likert')->addGroupBy('user')->executeQuery();
@@ -14,7 +14,7 @@ class UserStudy{
         // $res = $conn->createQueryBuilder()->select('COUNT(user)')->distinct()->from('likert');
         // $nUsers = $res->fetchFirstColumn()[0];
         // $userId = $nUsers;
-        $userId = $conn->transactional(function(Connection $conn): int {
+        $userId = $conn->transactional(function(Connection $conn) use ($expertiseId): int  {
             // $queryBuilder = $conn->createQueryBuilder();
             // $ret = $queryBuilder->select('MIN(id)+1')->from('user')->where($queryBuilder->expr()->notIn('id +1',
             //     $queryBuilder->expr()->select('id')->from('user')
@@ -26,7 +26,7 @@ class UserStudy{
             }
             #TODO: check succes...
             // $now = $conn->createQueryBuilder()->fetchColumn("SELECT NOW()");
-            $ret = $conn->createQueryBuilder()->insert('user')->values( ['id'=>$nextId, 'create_time'=>'CURRENT_TIME'])->executeQuery();
+            $ret = $conn->createQueryBuilder()->insert('user')->values( ['id'=>$nextId, 'expertise'=>'?', 'create_time'=>'CURRENT_TIME'])->setParameter(0, $expertiseId)->executeQuery();
             // $ret = $conn->prepare("INSERT INTO user (id, create_time) VALUES ($nextId, CURRENT_TIMESTAMP)")->executeStatement();
             return $nextId;
         
