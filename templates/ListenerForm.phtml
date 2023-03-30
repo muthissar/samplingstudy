@@ -29,6 +29,9 @@
                             $title = "";
                         }
                     }
+                    else{
+                        $title = "";
+                    }
                     echo"<audio controls title='$title' src='./audio?local_sample_id=$local_sample_id'></audio><div>";
                     foreach($config['likert'] as $key=>$measured){
                         echo $this->fetch('./Likert.phtml', ['local_sample_id'=> $local_sample_id, "measured" => [$key=>$measured]]);
