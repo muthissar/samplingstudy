@@ -2,6 +2,7 @@
     $key =  array_keys($measured)[0];
     $desc = $measured[$key]['desc'];
     $name = $measured[$key]['name'];
+    $st_name = $measured[$key]['st_name'];
     // echo "<div class='col'><a href='#' data-toggle='tooltip' tabindex='0' title='$desc'>$name</a></div>";
     // echo '<div><span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Disabled tooltip">
     // <button class="btn btn-primary" style="pointer-events: none;" type="button" disabled>Disabled button</button>
@@ -11,15 +12,19 @@
     echo '<div class="col">';
     for ($x = 1; $x < 6; $x++) {
         if($x == 5){
-            $label = "&nbsp <a href='#' data-toggle='tooltip' tabindex='0' title='$desc'>$name</a>";
+            // $label = "&nbsp <a href='#' data-toggle='tooltip' tabindex='0' title='$desc'>$name</a>";
+            $label = "&nbsp <button type='button' class='btn btn-light btn-sm' data-bs-container='body' data-bs-toggle='popover' data-bs-placement='right' data-bs-content='$desc'>
+            <div class='d-md-none'>$st_name</div>
+            <div class='d-none d-sm-block'>$name</div>
+            </button>";
         }
         else{
             $label = "";
         }
         echo <<<EOS
             <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="$method-$key" id="inlineRadio$method-$key-$x" value="$x" required>
-                <label class="form-check-label" for="inlineRadio$method-$key-$x">$x$label</label>
+                <input class="form-check-input" type="radio" name="$local_sample_id-$key" id="inlineRadio$local_sample_id-$key-$x" value="$x" required>
+                <label class="form-check-label" for="inlineRadio$local_sample_id-$key-$x">$x$label</label>
             </div>
         EOS;
     };

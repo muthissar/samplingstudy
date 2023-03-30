@@ -1,25 +1,11 @@
-<div class="modal" tabindex="-1" id='myModal'>
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Modal title</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p>
-          Some modal
-        </p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id='myInput'>Close</button-->
-        <!--button type="button" class="btn btn-primary" id='myInput'>Save changes</button-->
-      </div>
-    </div>
-  </div>
-</div>
+<?php
+use App\Mut\DB;
+$conn = DB::getConnection();
+?>
   <!--div class="container"-->
     <div class='row'>
-      <h2>Participant Information Sheet</h2>
+      <div class='col-lg-6'>
+        <h2>Participant Information Sheet</h2>
         <p>
           <!--b>Full Title:</b> Listening Study – An Assessment on the Quality and Specificity of Computer-generated Singing with Artificially Converted Singing Techniques<br><br!>
           <b>Researcher's Name:</b> Brendan O'Connor (supervised by Prof Simon Dixon)</b><br>
@@ -35,44 +21,44 @@
 
           The purpose of this study is to evaluate different sampling techniques, 
           where we aim to identify if any of these creates more structured music and overall preference. 
-          We are requesting the participants to listen to 4 different recordings and rate from 1-5:
+          We are requesting the participants to listen to different generated melodies and rate from the following attributes 
+          from 1-5:
           <ul class='list-group'>
-              <li class='list-group-item'>Short-term structure.</li>
-              <li class='list-group-item'>Long-term structure</li>
-              <!--li class='list-group-item'>Morbi leo risus</li>
-              <li class='list-group-item'>Porta ac consectetur ac</li>
-              <li class='list-group-item'>Vestibulum at eros</li-->
-          </ul> Please ensure you are using a desktop/laptop before continuing (the study is not optimized for tablets or phones).
+              <?php
+              foreach(DB::$config['likert'] as $key=>$likert){
+                $measured = $likert['name'];
+                $desc = $likert['desc'];
+                // echo "<li class='list-group-item'>$measured</li>";
+                echo "<button type='button' class='btn btn-light btn-sm' data-bs-container='body' data-bs-toggle='popover' data-bs-placement='right' data-bs-content='$desc'>$measured</button>";
+                // break;
+              }
+              ?>
+          </ul>
+          Please ensure to that your speakers or headphones are connected.
           <!--Detailed instructions on how to proceed will be provided throughout the experiment, which takes approximately 10-15 minutes to complete. Please click <b>Next</b> to continue.<br><br>-->
-      </p>
-  </div>
-<!--button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal">
-  Launch demo modal
-</button-->
-<div class="row">
-  <form method="get" action="userstudy">
-      <!--input id="nav" type="submit" value="Add"-->
-      <!--button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal"--->
-      <div>
-        <label for="expertise_id" class="form-label">State</label>
-        <select name="expertise_id" id="expertise_id" class="form-select"required>
-          <option selected disabled value="">Level of musical expertice</option>
-          <?php 
-            use App\Mut\DB;
-            $conn = DB::getConnection();
-            $expertises = $conn->executeQuery("SELECT * FROM expertise")->fetchAllAssociative();
-            foreach($expertises as $expertise){
-              echo '<option value="'.$expertise["id"].'">'.$expertise["level"].'</option>"';
-            }
-          ?>
-        </select>
-        <div class="invalid-feedback">Please select expertise.</div>
+        </p>
       </div>
-      <button type="hidden" id="button" class="btn btn-primary">
-          Next
-      </button>
-  </form>
-</div>
+    </div>
+    <div class='row'>
+      <div class='col-lg-6'>
+        <form action="userstudy" method='get' >
+          <label for="expertise_id" class="form-label">Please select level of musical expertise</label>
+          <select name="expertise_id" id="expertise_id" class="form-select"required>
+            <option selected disabled value="">Select</option>
+            <?php 
+              $expertises = $conn->executeQuery("SELECT * FROM expertise")->fetchAllAssociative();
+              foreach($expertises as $expertise){
+                echo '<option value="'.$expertise["id"].'">'.$expertise["level"].'</option>"';
+              }
+            ?>
+          </select>
+          <div class="invalid-feedback">Please select expertise.</div>
+          <button type="hidden" id="button" class="btn btn-primary">
+            Next
+          </button>
+        </form>
+      </div>
+  </div>
 <!-- Cookie Consent by FreePrivacyPolicy.com https://www.FreePrivacyPolicy.com -->
 <script type="text/javascript" src="//www.freeprivacypolicy.com/public/cookie-consent/4.1.0/cookie-consent.js" charset="UTF-8"></script>
 <script type="text/javascript" charset="UTF-8">
@@ -91,19 +77,3 @@ cookieconsent.run({"notice_banner_type":"headline","consent_type":"express","pal
 <!-- Below is the link that users can use to open Preferences Center to change their preferences. Do not modify the ID parameter. Place it where appropriate, style it as needed. -->
 
 <a href="#" id="open_preferences_center">Update cookies preferences</a>
-
-
-<!--script>
-//   $('#button').click(function(){
-//   $('.btn-update').prop('disabled', false);
-//   e.preventDefault();
-// });
-const selector = document.querySelector('#expertise_id')
-
-selector.addEventListener('click', function(){
-// selector.addEventListener('change', function(){
-  document.querySelector('#button').prop('disabled', false);
-  e.preventDefault();
-})
-
-</script-->

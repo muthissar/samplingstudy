@@ -19,7 +19,7 @@ function parse_cookie(Request $request){
     return json_decode($cookie['exp']);
 }
 function render(Response $response, string $page, array $args=[]) : Response{
-    $renderer = new PhpRenderer('templates');
+    $renderer = new PhpRenderer(__DIR__.'/../templates');
     $renderer->setLayout('layout.phtml');
     $response = $renderer->render($response, $page, $args);
     return $response;
@@ -31,33 +31,50 @@ return function (App $app) {
         return $response;
     });
 
+    $app->get('/favicon.ico', function (Request $request, Response $response) {
+        $file = __DIR__.'/../public/favicon.ico';
+        $response = $response->withHeader('Content-Description', 'File Transfer')
+       ->withHeader('Content-Type', 'image/x-icon')
+       ->withHeader('Content-Disposition', 'attachment;filename="'.basename($file).'"')
+       ->withHeader('Expires', '0')
+       ->withHeader('Cache-Control', 'must-revalidate')
+       ->withHeader('Pragma', 'public')
+       ->withHeader('Content-Length', filesize($file)); 
+        readfile($file);
+        return $response;
+    });
+
     $app->get('/', function (Request $request, Response $response) {
         $cookie = $request->getCookieParams();
-        // NOTE: alternatively check if userid is set in database.
         if(array_key_exists('success', $cookie)){
             return $response = $response->withHeader('Location', 'success')->withStatus(302);
         }
-        else{
-            $response = render($response, "landing.phtml");
-            return $response;
-        }
+        $response = render($response, "landing.phtml");
+        return $response;
     });
 
     $app->get('/userstudy', function (Request $request, Response $response, $args) {
-
-        $userStudy = new UserStudy();
-        // NOTE: get expertise
-        $parsedQuery = $request->getQueryParams();
-        // $parsedBody = $request->getParsedBody();
-        if (array_key_exists('expertise_id',  $parsedQuery)){
-            $expertiseId = $parsedQuery['expertise_id'];
+        $cookie = $request->getCookieParams();
+        if(array_key_exists('success', $cookie)){
+            return $response = $response->withHeader('Location', 'success')->withStatus(302);
+        }
+        if(array_key_exists('exp', $cookie)){
+            $exp = json_decode($cookie['exp'], true );
         }
         else{
-            $expertiseId = null;
+            $userStudy = new UserStudy();
+            // NOTE: get expertise
+            $parsedQuery = $request->getQueryParams();
+            // $parsedBody = $request->getParsedBody();
+            if (array_key_exists('expertise_id',  $parsedQuery)){
+                $expertiseId = $parsedQuery['expertise_id'];
+            }
+            else{
+                $expertiseId = null;
+            }
+            $exp = $userStudy->getStudy($expertiseId);
         }
-        $exp = $userStudy->getStudy($expertiseId);
-        $methods = array_keys($exp['samples']);
-        $response = render($response, "UserStudy.phtml", $methods);
+        $response = render($response, "ListenerForm.phtml", $exp['samples']);
         $cookie = new Cookies();
         $cookie->set('exp', json_encode($exp));
         $header = $cookie->toHeaders();
@@ -76,18 +93,19 @@ return function (App $app) {
         $conn = DB::getConnection();
 
         $parsedInput = [];
-        foreach($samples as $method=>$sample){
-            $parsedInput[$method] = [
+        foreach($samples as $sample){
+            // $parsedInput[$method] = 
+            array_push($parsedInput, [
                 'user'=>$user,
-                'sample'=>$sample,
-                'time'=>'CURRENT_TIME'
-            ];
+                'sample'=>$sample->id,
+                'time'=>'"'.(new DateTime())->format(DateTime::ISO8601).'"'
+            ]);
         }
         foreach($userInputs as $userInput=>$value){
             $exploded = explode('-', $userInput);
-            $method = $exploded[0];
+            $local_sample_id = $exploded[0];
             $likert = $exploded[1];
-            $parsedInput[$method][$likert] = $value;
+            $parsedInput[$local_sample_id][$likert] = $value;
             
         }
         $success = $conn->transactional(function(Connection $conn) use ($parsedInput): string  {
@@ -110,10 +128,10 @@ return function (App $app) {
     });
 
     $app->get('/audio', function (Request $request, Response $response) {
-        $method = $request->getQueryParams()['method'];
+        $local_sample_id = $request->getQueryParams()['local_sample_id'];
         $exp = parse_cookie($request);
         $samples = $exp->samples;
-        $id = $samples[$method];
+        $id = $samples[$local_sample_id]->id;
         $conn = DB::getConnection();
         $path = $conn->createQueryBuilder()->select('path')->from('samples')->where('id = ?')->setParameter(0, $id)->fetchFirstColumn()[0];
         $fh = fopen($path, 'rb');
@@ -122,7 +140,8 @@ return function (App $app) {
         return $response
                 ->withBody($stream)
                 ->withAddedHeader('Content-length', filesize($path))
-                ->withHeader('Content-Type', 'audio/mpeg')
+                ->withHeader('Content-Type', 'audio/ogg')
+                ->withAddedHeader('Content-Disposition', 'inline;')
                 ;
         // $response->withAddedHeader('Content-Type', 'audio/mpeg')
         //     ->withAddedHeader('Content-length', filesize($path))

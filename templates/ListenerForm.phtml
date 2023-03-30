@@ -1,17 +1,42 @@
-<form action="/submit" method="post">
-    <?php
-        use App\Mut\Config;
-        $config = Config::getConfig();
-        $shuffled = array_merge_recursive([], $data);
-        shuffle($shuffled);
-        // foreach($data as $method){
-        foreach($shuffled as $method){
-            echo "<div class='row'><audio controls src='./audio?method=$method'></audio><div>";
-            foreach($config['likert'] as $key=>$measured){
-                echo $this->fetch('./Likert.phtml', ['method'=> $method, "measured" => [$key=>$measured]]);
-            }
-        }
+<div class="row">
+    <div class="col-lg-6">
+        <form action="/submit" method="post">
+            <?php
+                use App\Mut\Config;
+                use App\Mut\DB;
+                $config = Config::getConfig();
+                $samples = $data;
+                // $shuffled = array_merge_recursive([], $data);
+                $shuffled = array_merge_recursive([], array_keys($samples));
+                shuffle($shuffled);
+                if ($config['test']){
+                    $method_dict = DB::getConnection()->executeQuery('SELECT * FROM sampling_method')->fetchAllAssociative();
+                    $methods = [];
+                    foreach($method_dict as $method){
+                        $methods[$method['id']] = $method['name'];
+                    }
+                }
+                foreach($shuffled as $local_sample_id){
+                    echo "<div class='row'>";
+                    if ($config['test']){
+                        echo $methods[$samples[$local_sample_id]['method']];
+                        if(isset($_COOKIE['exp'])) {
+                           $res = DB::getConnection()->createQueryBuilder()->select('path')->from('samples')->where('id = ?')->setParameter(0, $samples[$local_sample_id]['id']);
+                           $title = $res->fetchFirstColumn()[0];
         
-    ?>
-    <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+                          } 
+                        else{
+                            $title = "";
+                        }
+                    }
+                    echo"<audio controls title='$title' src='./audio?local_sample_id=$local_sample_id'></audio><div>";
+                    foreach($config['likert'] as $key=>$measured){
+                        echo $this->fetch('./Likert.phtml', ['local_sample_id'=> $local_sample_id, "measured" => [$key=>$measured]]);
+                    }
+                }
+                
+            ?>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>

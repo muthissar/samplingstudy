@@ -1,6 +1,7 @@
 <?php
 namespace App\Mut;
 use App\Mut\DB;
+use DateTime;
 use Doctrine\DBAL\Connection;
 // use Doctrine\DBAL\Types;
 class UserStudy{
@@ -26,7 +27,7 @@ class UserStudy{
             }
             #TODO: check succes...
             // $now = $conn->createQueryBuilder()->fetchColumn("SELECT NOW()");
-            $ret = $conn->createQueryBuilder()->insert('user')->values( ['id'=>$nextId, 'expertise'=>'?', 'create_time'=>'CURRENT_TIME'])->setParameter(0, $expertiseId)->executeQuery();
+            $ret = $conn->createQueryBuilder()->insert('user')->values( ['id'=>$nextId, 'expertise'=>'?', 'create_time'=> '?'])->setParameters([0 => $expertiseId, 1=>(new DateTime())->format(DateTime::ISO8601)])->executeQuery();
             // $ret = $conn->prepare("INSERT INTO user (id, create_time) VALUES ($nextId, CURRENT_TIMESTAMP)")->executeStatement();
             return $nextId;
         
@@ -40,12 +41,55 @@ class UserStudy{
         //     return $conn->fetchOne('SELECT 1');
         // });
         // NOTE: can maybe be done in one query...
-        $methodGroups = $conn->createQueryBuilder()->select("GROUP_CONCAT(id, '!')")->from('samples')->groupBy('method')->fetchAllAssociative();
+        
+        $samplesPrMethod = Config::getConfig()['samples_per_method'];
+        // $sql = "SELECT a.method,
+        //     GROUP_CONCAT((
+        //         SELECT b.id 
+        //         FROM samples b 
+        //         WHERE b.method = a.method
+        //         ORDER BY id 
+        //         LIMIT $userId,$samplesPrUser
+        //     ), '!') as id
+        //     FROM samples a
+        //     GROUP BY a.method
+        //     ";
+        $sql = "SELECT a.method,
+        (
+            SELECT b.id
+            FROM samples b 
+            WHERE b.method = a.method
+            ORDER BY id 
+            LIMIT ?, 1
+        )  as id
+        FROM samples a
+        GROUP BY a.method
+        ";
+        $prepared = $conn->prepare($sql);
         $samples = [];
-        foreach ($methodGroups as $method=>$samples_){
-            $paths = explode('!', array_values($samples_)[0]);
-            $samples[$method] = $paths[$userId];
+        for($offset=$samplesPrMethod*$userId; $offset<$samplesPrMethod*$userId+$samplesPrMethod; $offset++){
+            $res = $prepared->executeQuery([$offset])->fetchAllAssociative();
+            foreach($res as $item){
+                // $method = $item['method'];
+                // $arr = $samples[$method] ?? [];
+                // array_push($arr, $item['id']);
+                // $samples[$method] = $arr;
+                array_push($samples, $item);
+            }
         }
+       
+        // $sql = "
+        //     SELECT GROUP_CONCAT(b.id, '!')
+        //     FROM samples b 
+        //     ORDER BY id 
+        //     LIMIT $userId,$samplesPrUser
+        // ";
+        // $methodGroups = $conn->createQueryBuilder()->select("GROUP_CONCAT(id, '!')")->from('samples')->groupBy('method')->fetchAllAssociative();
+        // $samples = [];
+        // foreach ($methodGroups as $method=>$samples_){
+        //     $paths = explode('!', array_values($samples_)[0]);
+        //     $samples[$method] = $paths[$userId];
+        // }
         $exp = ['user'=>$userId, 'samples'=>$samples];
         return $exp;
     }

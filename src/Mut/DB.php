@@ -7,6 +7,8 @@ use Doctrine\DBAL\Connection;
 use \Doctrine\DBAL\Schema\Schema;
 use \App\Mut\Config;
 use Doctrine\DBAL\Types;
+use RecursiveDirectoryIterator;
+use FilesystemIterator;
 class DB{
     static $config;
     protected Connection $conn;
@@ -37,7 +39,7 @@ class DB{
         foreach (array_keys(self::$config['likert']) as &$method) {
             $likertTable->addColumn($method, "integer", ["unsigned" => true, /*"notnull" => false*/]);
         }
-        $likertTable->addColumn("time", 'datetime');
+        $timeColumn = $likertTable->addColumn("time", 'datetime');
         // $likertTable->addUniqueIndex(["user"]);
         // $likertTable->setComment('Keeps the answers of users.');
         $userTable = $schema->createTable("user");
@@ -111,12 +113,22 @@ class DB{
         }
 
         # NOTE: fill samples
+        # NOTE: shuffle files (seeded for reproducability)
+        mt_srand(0);
         foreach($methods as $method => $methodId){
-            foreach (new DirectoryIterator(__DIR__."/../../$sampleDir/$method") as $file) {
-                if($file->isDot()) continue;
+            $files = iterator_to_array(
+                new RecursiveDirectoryIterator(__DIR__."/../../$sampleDir/$method"),
+                FilesystemIterator::SKIP_DOTS
+            );
+            asort($files);
+            shuffle($files);
+            // $files = new DirectoryIterator(__DIR__."/../../$sampleDir/$method");
+            // $files = [];
+            // array_push($files, new DirectoryIterator(__DIR__."/../../$sampleDir/$method"));
+            foreach ($files as $file) {
+                // if($file->isDot()) continue;
                 $p = $file->getPathname();
                 $conn->insert('samples', ['method'=>$methodId, 'path'=>$p]);
-                // print $file->getFilename() . '<br>';
             }
         }
     }
