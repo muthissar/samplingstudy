@@ -140,5 +140,11 @@ class DB{
         $insertStm->setParameter(0, 'test_user')->executeQuery();
 
     }
+
+    public function clear_tables() : void {
+        $queryBuilder = $this->conn->createQueryBuilder();
+        $queryBuilder->delete("user")->executeQuery();
+        $queryBuilder->delete("likert")->executeQuery();
+    }
 };
 DB::$config = Config::getConfig();

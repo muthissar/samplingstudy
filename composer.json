@@ -69,6 +69,7 @@
         "recreate-db":[
             "php scripts/delete_db.php",
             "php scripts/create_db.php"
-        ]
+        ],
+        "clear-tables": "php scripts/clear_tables.php"
     }
 }
