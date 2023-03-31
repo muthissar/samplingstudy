@@ -18,19 +18,14 @@
                 }
                 foreach($shuffled as $local_sample_id){
                     echo "<div class='row'>";
+                    $title = "";
                     if ($config['test']){
                         echo $methods[$samples[$local_sample_id]['method']];
                         if(isset($_COOKIE['exp'])) {
                            $res = DB::getConnection()->createQueryBuilder()->select('path')->from('samples')->where('id = ?')->setParameter(0, $samples[$local_sample_id]['id']);
-                           $title = $res->fetchFirstColumn()[0];
-        
+                           $p_ = $res->fetchFirstColumn()[0];
+                           $title = explode("/samples/",$p_)[1];
                           } 
-                        else{
-                            $title = "";
-                        }
-                    }
-                    else{
-                        $title = "";
                     }
                     echo"<audio controls title='$title' src='./audio?local_sample_id=$local_sample_id'></audio><div>";
                     foreach($config['likert'] as $key=>$measured){

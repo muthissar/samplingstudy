@@ -13,12 +13,13 @@ use Slim\Psr7\Stream;
 use Slim\Psr7\Cookies;
 use App\Mut\UserStudy;
 use Doctrine\DBAL\Connection;
+use Psr\Http\Message\ResponseInterface;
 
 function parse_cookie(Request $request){
     $cookie = $request->getCookieParams();
     return json_decode($cookie['exp']);
 }
-function render(Response $response, string $page, array $args=[]) : Response{
+function render(ResponseInterface $response, string $page, array $args = []): ResponseInterface{
     $renderer = new PhpRenderer(__DIR__.'/../templates');
     $renderer->setLayout('layout.phtml');
     $response = $renderer->render($response, $page, $args);
@@ -73,6 +74,9 @@ return function (App $app) {
                 $expertiseId = null;
             }
             $exp = $userStudy->getStudy($expertiseId);
+            if (is_null($exp)){
+                return render($response, 'failure.phtml');
+            }
         }
         $response = render($response, "ListenerForm.phtml", $exp['samples']);
         $cookie = new Cookies();
