@@ -49,6 +49,9 @@ class UserStudy{
                 for($offset=$samplesPrMethod*$userId; $offset<$samplesPrMethod*$userId+$samplesPrMethod; $offset++){
                     $res = $prepared->executeQuery([$offset])->fetchAllAssociative();
                     foreach($res as $item){
+                        if (is_null($item['id'])){
+                            throw new \Exception('Too few samples in database');
+                        }
                         array_push($samples, $item);
                     }
                 }
