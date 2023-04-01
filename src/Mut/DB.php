@@ -117,16 +117,18 @@ class DB{
         mt_srand(0);
         foreach($methods as $method => $methodId){
             $files = iterator_to_array(
-                new RecursiveDirectoryIterator(__DIR__."/../../$sampleDir/$method"),
-                FilesystemIterator::SKIP_DOTS
-            );
+                new RecursiveDirectoryIterator(
+                    __DIR__."/../../$sampleDir/$method",
+                    FilesystemIterator::SKIP_DOTS
+            ));
+            
             asort($files);
             shuffle($files);
-            // $files = new DirectoryIterator(__DIR__."/../../$sampleDir/$method");
-            // $files = [];
-            // array_push($files, new DirectoryIterator(__DIR__."/../../$sampleDir/$method"));
             foreach ($files as $file) {
-                // if($file->isDot()) continue;
+                if (!($file->isFile() && $file->getExtension()=='opus')){
+                    echo $file->getPathname();
+                    throw new \Exception("There should only be opus files in the sample directory.");
+                }
                 $p = $file->getPathname();
                 $conn->insert('samples', ['method'=>$methodId, 'path'=>$p]);
             }
