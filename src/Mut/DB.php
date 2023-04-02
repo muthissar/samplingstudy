@@ -9,6 +9,8 @@ use \App\Mut\Config;
 use Doctrine\DBAL\Types;
 use RecursiveDirectoryIterator;
 use FilesystemIterator;
+use RecursiveIteratorIterator;
+use Ds\Set;
 class DB{
     static $config;
     protected Connection $conn;
@@ -97,14 +99,22 @@ class DB{
         $methodCounter = 0;
         $sampleDir = self::$config['sample_dir'];
         // foreach (self::$config['sampling_methods'] as $method) {
-        foreach (new DirectoryIterator(__DIR__."/../../$sampleDir") as $file) {
-            if($file->isDot()) continue;
-            if($file->isDir()){
-                $method = $file->getBasename();
-                $conn->insert('sampling_method', ['id'=>$methodCounter, 'name' =>$method]);
-                $methods[$method] = $methodCounter;
+        $methods = [];
+        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator(__DIR__."/../../$sampleDir", FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
+            if($file->isFile()){
+                $p = $file->getPathname();
+                $regex='/^(?<basedir>.+)\/samples\/(?<sampledir>.+)\/(?<fileid>[a-zA-Z0-9]+)\.opus$/';
+                $match = [];
+                preg_match($regex, $p, $match);
+                $method = $match['sampledir'];
+                if(!key_exists($method, $methods)){
+                    $methods[$method] = $methodCounter;
+                    $conn->insert('sampling_method', ['id'=>$methodCounter, 'name' =>$method]);
+                    $methods[$method] = $methodCounter;
+                    $methodCounter++;
+                }
             }
-            $methodCounter++;
+            
         }
         
         #NOTE: fill expertise table
@@ -126,10 +136,14 @@ class DB{
             shuffle($files);
             foreach ($files as $file) {
                 if (!($file->isFile() && $file->getExtension()=='opus')){
-                    echo $file->getPathname();
-                    throw new \Exception("There should only be opus files in the sample directory.");
+                    $path = $file->getPathname();
+                    throw new \Exception("There should only be opus files in the sample directory. Got file $path");
                 }
                 $p = $file->getPathname();
+                $regex='/^(?<basedir>.+)\/samples\/(?<sampledir>.+)\/(?<fileid>[a-zA-Z0-9]+)\.opus$/';
+                $match = [];
+                preg_match($regex, $p, $match);
+                $sheetPath = $match['basedir'].'/sheets/'.$match['sampledir'].'/'.$match['fileid'].'.svg';
                 $conn->insert('samples', ['method'=>$methodId, 'path'=>$p]);
             }
         }
@@ -150,3 +164,16 @@ class DB{
     }
 };
 DB::$config = Config::getConfig();
+
+function dir_contains_children($dir) {
+    $result = false;
+    if($dh = opendir($dir)) {
+        while(!$result && ($file = readdir($dh)) !== false) {
+            $result = $file !== "." && $file !== "..";
+        }
+
+        closedir($dh);
+    }
+
+    return $result;
+}

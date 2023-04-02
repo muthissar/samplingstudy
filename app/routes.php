@@ -154,6 +154,43 @@ return function (App $app) {
         // header('Content-length: ' . filesize('/path/to/your/file.mp3'));
         // print file_get_contents('/path/to/your/file.mp3');
     });
+    $app->get('/sheet_', function (Request $request, Response $response) {
+        $local_sample_id = explode('.svg', $request->getQueryParams()['local_sample_id'])[0];
+        $exp = parse_cookie($request);
+        $samples = $exp->samples;
+        $id = $samples[$local_sample_id]->id;
+        $conn = DB::getConnection();
+        $pathAudio = $conn->createQueryBuilder()->select('path')->from('samples')->where('id = ?')->setParameter(0, $id)->fetchFirstColumn()[0];
+        $regex='/^(?<basedir>.+)\/samples\/(?<sampledir>.+)\/(?<fileid>[a-zA-Z0-9]+)\.opus$/';
+        $match = [];
+        preg_match($regex, $pathAudio, $match);
+        $sheetPath = $match['basedir'].'/sheets/'.$match['sampledir'].'/'.$match['fileid'].'.svg';
+        $fh = fopen($sheetPath, 'rb');
+        $stream = new Stream($fh);
+        #TODO: set headers and choose codec and dissallow that it's loading loading loading.
+        return $response
+                ->withBody($stream)
+                ->withAddedHeader('Content-length', filesize($sheetPath))
+                ->withHeader('Content-Type', 'image/svg+xml')
+                ->withAddedHeader('Content-Disposition', 'inline;')
+                ;
+    });
+    $app->get('/sheet', function (Request $request, Response $response) {
+        $local_sample_id = $request->getQueryParams()['local_sample_id'];
+        $exp = parse_cookie($request);
+        $samples = $exp->samples;
+        $id = $samples[$local_sample_id]->id;
+        $conn = DB::getConnection();
+        $pathAudio = $conn->createQueryBuilder()->select('path')->from('samples')->where('id = ?')->setParameter(0, $id)->fetchFirstColumn()[0];
+        $regex='/^(?<basedir>.+)\/samples\/(?<sampledir>.+)\/(?<fileid>[a-zA-Z0-9]+)\.opus$/';
+        $match = [];
+        preg_match($regex, $pathAudio, $match);
+        $sheetPath = $match['basedir'].'/sheets/'.$match['sampledir'].'/'.$match['fileid'].'.svg';
+        // echo "<img src='/sheet_?local_sample_id=$local_sample_id' width='40px;' />";
+        $response->getBody()->write("<img src='/sheet_?local_sample_id=$local_sample_id.svg' height='100%'/>");
+        // $response->getBody()->write("<object type='image/svg+xml' src='/sheet_?local_sample_id=$local_sample_id' width='40px;'/>");
+        return $response;
+    });
     // })->setOutputBuffering(false);
     $app->get('/success', function (Request $request, Response $response) {
         $response = render($response, "Success.phtml");
