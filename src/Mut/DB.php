@@ -94,7 +94,11 @@ class DB{
             $conn->executeQuery($query);
         }
         
+        $this->fill();
+    }
+    public function fill() : void{
         #NOTE: fill sampling_method table
+        $conn = (new DB())->conn;;
         $methods = [];
         $methodCounter = 0;
         $sampleDir = self::$config['sample_dir'];
@@ -116,6 +120,8 @@ class DB{
             }
             
         }
+
+        $this->fill_samples($methods);
         
         #NOTE: fill expertise table
         foreach(self::$config['expertise'] as $expertise){
@@ -124,6 +130,11 @@ class DB{
 
         # NOTE: fill samples
         # NOTE: shuffle files (seeded for reproducability)
+
+    }
+    public function fill_samples(array $methods) : void{
+        $conn = (new DB())->conn;;
+        $sampleDir = self::$config['sample_dir'];
         mt_srand(0);
         foreach($methods as $method => $methodId){
             $files = iterator_to_array(
