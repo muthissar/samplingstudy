@@ -15,14 +15,18 @@ likert:
     # repetitiveness:
     #     name: 'Overly repetitive (degenerate)'
     #     desc: 'Whether the melody repeats notes over and over.'
+    # musicality:
+    #     name: 'Musicality'
+    #     st_name: 'Musicality'
+    #     desc: 'Whether the melody is m'
     complexity:
         name: 'Complexity'
         st_name: 'Complexity'
         desc: 'Whether the melody is complex in terms of rhythm and/or pitch.'
-    overall_preference:
-        name: 'Preference'
-        st_name: 'Preference'
-        desc: 'Overall preference to melody.' 
+    overall_quality:
+        name: 'Quality'
+        st_name: 'Quality'
+        desc: 'Overall quality assessment or preference for the melody.'
 expertise: [
     "Beginner",
     "Intermediate",

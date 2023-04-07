@@ -12,18 +12,20 @@ $conn = DB::getConnection();
           <b>Queen Mary Ethics of Research Committee reference number:</b> QMERC22.088</b><br>
           <b>Version number and date:</b> Version 0.1: 15.02.2022<br><br-->
 
-          We would like to invite you to be part of a research project. 
+          We want to invite you to be part of a research project. 
           Please read the following information carefully before you decide to take part. 
-          This will tell you why the research is being done and what you will be asked to do if you take part.<br><br>
+          This page will tell you why the research is being done and what you will be asked to do if you participate.<br><br>
 
-          <b>What is the purpose of the study and what would taking part involve?</b><br><br>
+          <b>Purpose of the study</b><br>
 
-          The purpose of this study is to evaluate different sampling techniques, 
-          where we aim to identify if any of these creates more structured music and overall preference. 
-          We are requesting the participants to listen to different generated melodies and rate from the following attributes 
+          This study aims to evaluate sampling techniques for neural network music generation. Specifically, we aim to analyze melodies' musical structure and complexity generated with different sampling strategies. dies.
+          
+            <br><br>
+          <b>Experiment description</b><br>
+          We are requesting you to listen to generated Irish folk melodies and rate them on the following attributes:
           from 1-5:
-          <ul class='list-group'>
-              <?php
+          <!--ul class='list-group'-->
+              <!--?php
               foreach(DB::$config['likert'] as $key=>$likert){
                 $measured = $likert['name'];
                 $desc = $likert['desc'];
@@ -31,9 +33,22 @@ $conn = DB::getConnection();
                 echo "<button type='button' class='btn btn-light btn-sm' data-bs-container='body' data-bs-toggle='popover' data-bs-placement='right' data-bs-content='$desc'>$measured</button>";
                 // break;
               }
+              ?-->
+          <!--/ul-->
+          <dl class="row">
+            <?php
+              foreach(DB::$config['likert'] as $key=>$likert){
+                $measured = $likert['name'];
+                $desc = $likert['desc'];
+                
+                echo "<dt class='col-sm-4'>$measured</dt><dd class='col-sm-8'>$desc</dd>";
+    
+                #"<button type='button' class='btn btn-light btn-sm' data-bs-container='body' data-bs-toggle='popover' data-bs-placement='right' data-bs-content='$desc'>$measured</button>";
+                
+              }
               ?>
-          </ul>
-          Please ensure to that your speakers or headphones are connected.
+          </dl>
+          The descriptions can be revisited during the experiment, by clicking the button on the right side. <b>Please ensure that your speakers or headphones are connected.</b>
           <!--Detailed instructions on how to proceed will be provided throughout the experiment, which takes approximately 10-15 minutes to complete. Please click <b>Next</b> to continue.<br><br>-->
         </p>
       </div>
@@ -41,7 +56,7 @@ $conn = DB::getConnection();
     <div class='row'>
       <div class='col-lg-6'>
         <form action="userstudy" method='get' >
-          <label for="expertise_id" class="form-label">Please select level of musical expertise</label>
+          <label for="expertise_id" class="form-label">Please select your level of musical expertise below.</label>
           <select name="expertise_id" id="expertise_id" class="form-select"required>
             <option selected disabled value="">Select</option>
             <?php 
