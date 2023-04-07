@@ -145,10 +145,19 @@ class DB{
             
             asort($files);
             shuffle($files);
+
+            $max_samples = self::$config['max_samples'];
+            $sample_counter = 0;
             foreach ($files as $file) {
                 if (!($file->isFile() && $file->getExtension()=='opus')){
                     $path = $file->getPathname();
                     throw new \Exception("There should only be opus files in the sample directory. Got file $path");
+                }
+                if ($sample_counter >= $max_samples){
+                    break;
+                }
+                else{
+                    $sample_counter++;
                 }
                 $p = $file->getPathname();
                 $regex='/^(?<basedir>.+)\/samples\/(?<sampledir>.+)\/(?<fileid>[a-zA-Z0-9]+)\.opus$/';

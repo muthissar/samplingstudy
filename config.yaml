@@ -2,6 +2,7 @@ db_name: './listener_db.sqlite'
 sample_dir: './samples'
 test: true
 samples_per_method: 2
+max_samples: 512
 likert:
     stm_struct:
         name: 'Short-term structure'
