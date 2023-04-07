@@ -5,25 +5,18 @@ $conn = DB::getConnection();
   <!--div class="container"-->
     <div class='row'>
       <div class='col-lg-6'>
-        <h2>Participant Information Sheet</h2>
+        <h1>Participant Information Sheet</h1>
         <p>
-          <!--b>Full Title:</b> Listening Study – An Assessment on the Quality and Specificity of Computer-generated Singing with Artificially Converted Singing Techniques<br><br!>
-          <b>Researcher's Name:</b> Brendan O'Connor (supervised by Prof Simon Dixon)</b><br>
-          <b>Queen Mary Ethics of Research Committee reference number:</b> QMERC22.088</b><br>
-          <b>Version number and date:</b> Version 0.1: 15.02.2022<br><br-->
-
           We want to invite you to be part of a research project. 
           Please read the following information carefully before you decide to take part. 
-          This page will tell you why the research is being done and what you will be asked to do if you participate.<br><br>
+          This page will tell you why the research is being done and what you will be asked to do if you participate.<br>
 
-          <b>Purpose of the study</b><br>
+          <h3>Purpose of the study</h3>
 
-          This study aims to evaluate sampling techniques for neural network music generation. Specifically, we aim to analyze melodies' musical structure and complexity generated with different sampling strategies. dies.
-          
-            <br><br>
-          <b>Experiment description</b><br>
-          We are requesting you to listen to generated Irish folk melodies and rate them on the following attributes:
-          from 1-5:
+          This study aims to evaluate sampling techniques for neural network music generation. Specifically, we aim to analyze the musical structure and complexity of melodies generated with different sampling strategies.<br><br>
+
+          <h3>Experiment description</h3>
+          We are requesting you to listen to generated Irish folk melodies and rate the following attributes on a 1-5 scale, where 1 is the lowest and 5 is the highest:<br><br>
           <!--ul class='list-group'-->
               <!--?php
               foreach(DB::$config['likert'] as $key=>$likert){
@@ -48,7 +41,7 @@ $conn = DB::getConnection();
               }
               ?>
           </dl>
-          The descriptions can be revisited during the experiment, by clicking the button on the right side. <b>Please ensure that your speakers or headphones are connected.</b>
+          The descriptions can be revisited during the experiment, by clicking the buttons on the right side. <b>Please ensure that your speakers or headphones are connected.</b>
           <!--Detailed instructions on how to proceed will be provided throughout the experiment, which takes approximately 10-15 minutes to complete. Please click <b>Next</b> to continue.<br><br>-->
         </p>
       </div>
@@ -56,7 +49,7 @@ $conn = DB::getConnection();
     <div class='row'>
       <div class='col-lg-6'>
         <form action="userstudy" method='get' >
-          <label for="expertise_id" class="form-label">Please select your level of musical expertise below.</label>
+          <label for="expertise_id" class="form-label">Select your level of musical expertise below.</label>
           <select name="expertise_id" id="expertise_id" class="form-select"required>
             <option selected disabled value="">Select</option>
             <?php 
