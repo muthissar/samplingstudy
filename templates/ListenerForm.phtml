@@ -32,7 +32,8 @@
                           } 
                     }
                     echo "<a href='./sheet?local_sample_id=$local_sample_id' target='_blank' class='link-primary'>Sheet link</a>"; 
-                    echo"<audio preload='auto' controls title='$title' src='./audio?local_sample_id=$local_sample_id'></audio><div>";
+                    // echo"<audio preload='auto' controls title='$title' src='./audio?local_sample_id=$local_sample_id' type='audio/ogg'></audio><div>";
+                    echo"<audio preload='auto' controls title='$title' src='./audio?local_sample_id=$local_sample_id' type='audio/mpeg'></audio><div>";
                     foreach($config['likert'] as $key=>$measured){
                         echo $this->fetch('./Likert.phtml', ['local_sample_id'=> $local_sample_id, "measured" => [$key=>$measured]]);
                     }

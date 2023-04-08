@@ -144,9 +144,9 @@ return function (App $app) {
         return $response
                 ->withBody($stream)
                 ->withAddedHeader('Content-length', filesize($path))
-                ->withHeader('Content-Type', 'audio/ogg')
-                ->withAddedHeader('Content-Disposition', 'inline;')
-                ;
+                // ->withHeader('Content-Type', 'audio/ogg')
+                ->withHeader('Content-Type', 'audio/mpeg')
+                ->withAddedHeader('Content-Disposition', 'inline; filename="audio.mp3"');
         // $response->withAddedHeader('Content-Type', 'audio/mpeg')
         //     ->withAddedHeader('Content-length', filesize($path))
         //     ->withBody(file_get_contents($path));
@@ -161,7 +161,8 @@ return function (App $app) {
         $id = $samples[$local_sample_id]->id;
         $conn = DB::getConnection();
         $pathAudio = $conn->createQueryBuilder()->select('path')->from('samples')->where('id = ?')->setParameter(0, $id)->fetchFirstColumn()[0];
-        $regex='/^(?<basedir>.+)\/samples\/(?<sampledir>.+)\/(?<fileid>[a-zA-Z0-9]+)\.opus$/';
+        // $regex='/^(?<basedir>.+)\/samples\/(?<sampledir>.+)\/(?<fileid>[a-zA-Z0-9]+)\.opus$/';
+        $regex='/^(?<basedir>.+)\/samples\/(?<sampledir>.+)\/(?<fileid>[a-zA-Z0-9]+)\.mp3$/';
         $match = [];
         preg_match($regex, $pathAudio, $match);
         $sheetPath = $match['basedir'].'/sheets/'.$match['sampledir'].'/'.$match['fileid'].'.svg';
@@ -182,7 +183,8 @@ return function (App $app) {
         $id = $samples[$local_sample_id]->id;
         $conn = DB::getConnection();
         $pathAudio = $conn->createQueryBuilder()->select('path')->from('samples')->where('id = ?')->setParameter(0, $id)->fetchFirstColumn()[0];
-        $regex='/^(?<basedir>.+)\/samples\/(?<sampledir>.+)\/(?<fileid>[a-zA-Z0-9]+)\.opus$/';
+        // $regex='/^(?<basedir>.+)\/samples\/(?<sampledir>.+)\/(?<fileid>[a-zA-Z0-9]+)\.opus$/';
+        $regex='/^(?<basedir>.+)\/samples\/(?<sampledir>.+)\/(?<fileid>[a-zA-Z0-9]+)\.mp3$/';
         $match = [];
         preg_match($regex, $pathAudio, $match);
         $sheetPath = $match['basedir'].'/sheets/'.$match['sampledir'].'/'.$match['fileid'].'.svg';

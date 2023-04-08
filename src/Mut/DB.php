@@ -107,7 +107,8 @@ class DB{
         foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator(__DIR__."/../../$sampleDir", FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
             if($file->isFile()){
                 $p = $file->getPathname();
-                $regex='/^(?<basedir>.+)\/samples\/(?<sampledir>.+)\/(?<fileid>[a-zA-Z0-9]+)\.opus$/';
+                // $regex='/^(?<basedir>.+)\/samples\/(?<sampledir>.+)\/(?<fileid>[a-zA-Z0-9]+)\.opus$/';
+                $regex='/^(?<basedir>.+)\/samples\/(?<sampledir>.+)\/(?<fileid>[a-zA-Z0-9]+)\.mp3$/';
                 $match = [];
                 preg_match($regex, $p, $match);
                 $method = $match['sampledir'];
@@ -149,9 +150,12 @@ class DB{
             $max_samples = self::$config['max_samples'];
             $sample_counter = 0;
             foreach ($files as $file) {
-                if (!($file->isFile() && $file->getExtension()=='opus')){
+                // if (!($file->isFile() && $file->getExtension()=='opus')){
+                if (!($file->isFile() && $file->getExtension()=='mp3')){
                     $path = $file->getPathname();
-                    throw new \Exception("There should only be opus files in the sample directory. Got file $path");
+                    // throw new \Exception("There should only be opus files in the sample directory. Got file $path");
+                    throw new \Exception("There should only be mp3 files in the sample directory. Got file $path");
+                
                 }
                 if ($sample_counter >= $max_samples){
                     break;
@@ -160,7 +164,8 @@ class DB{
                     $sample_counter++;
                 }
                 $p = $file->getPathname();
-                $regex='/^(?<basedir>.+)\/samples\/(?<sampledir>.+)\/(?<fileid>[a-zA-Z0-9]+)\.opus$/';
+                // $regex='/^(?<basedir>.+)\/samples\/(?<sampledir>.+)\/(?<fileid>[a-zA-Z0-9]+)\.opus$/';
+                $regex='/^(?<basedir>.+)\/samples\/(?<sampledir>.+)\/(?<fileid>[a-zA-Z0-9]+)\.mp3$/';
                 $match = [];
                 preg_match($regex, $p, $match);
                 $sheetPath = $match['basedir'].'/sheets/'.$match['sampledir'].'/'.$match['fileid'].'.svg';
