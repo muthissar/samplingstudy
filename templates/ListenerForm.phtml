@@ -16,9 +16,12 @@
                         $methods[$method['id']] = $method['name'];
                     }
                 }
+                $num_samples = sizeof($shuffled);
+                $sample_counter = 1;
                 foreach($shuffled as $local_sample_id){
                     echo "<div class='row'>";
-                    $title = "";
+                    echo "$sample_counter/$num_samples";
+                    $sample_counter += 1;
                     if ($config['test']){
                         echo $methods[$samples[$local_sample_id]['method']];
                         if(isset($_COOKIE['exp'])) {
