@@ -32,6 +32,7 @@
                     foreach($config['likert'] as $key=>$measured){
                         echo $this->fetch('./Likert.phtml', ['local_sample_id'=> $local_sample_id, "measured" => [$key=>$measured]]);
                     }
+                    echo '<hr class="bg-dark border-1 border-top border-dark">';
                 }
                 
             ?>
