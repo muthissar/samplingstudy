@@ -186,9 +186,8 @@ return function (App $app) {
         $match = [];
         preg_match($regex, $pathAudio, $match);
         $sheetPath = $match['basedir'].'/sheets/'.$match['sampledir'].'/'.$match['fileid'].'.svg';
-        // echo "<img src='/sheet_?local_sample_id=$local_sample_id' width='40px;' />";
-        $response->getBody()->write("<img src='/sheet_?local_sample_id=$local_sample_id.svg' height='100%'/>");
-        // $response->getBody()->write("<object type='image/svg+xml' src='/sheet_?local_sample_id=$local_sample_id' width='40px;'/>");
+        $response->getBody()->write("<div class='row'<p><b>NOTE:</b> This score is auto-generated and not optimized for readability!</p><img src='/sheet_?local_sample_id=$local_sample_id.svg' height='100%'/></div>");
+        
         return $response;
     });
     // })->setOutputBuffering(false);
