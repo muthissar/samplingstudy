@@ -25,7 +25,7 @@
         "php": "^7.4 || ^8.0",
         "ext-json": "*",
         "doctrine/dbal": "^3.6",
-        "guzzlehttp/psr7": "^2.4",
+        "guzzlehttp/psr7": "^2.5",
         "monolog/monolog": "^2.9",
         "php-di/php-di": "^6.4",
         "slim/php-view": "^3.2",
